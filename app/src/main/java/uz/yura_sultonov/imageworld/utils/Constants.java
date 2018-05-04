@@ -13,6 +13,7 @@ public interface Constants {
     String SORT_LATEST = "latest";
 
     String SORT_POPULAR = "popular";
+    CharSequence[] sortTypes = {Constants.SORT_LATEST, Constants.SORT_POPULAR};
 
     int PER_PAGE = 20;
 

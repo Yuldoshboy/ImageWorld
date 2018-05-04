@@ -70,4 +70,9 @@ public final class GridAdapter extends BaseAdapter {
     public long getItemId(int position) {
         return position;
     }
+
+    public void clearItems() {
+        urls = new ArrayList<>();
+        notifyDataSetChanged();
+    }
 }

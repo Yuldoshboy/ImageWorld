@@ -34,7 +34,6 @@ public class FullScreenActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         position = intent.getIntExtra("position", 0);
-        Toast.makeText(this, MainActivity.imagesData.get(position).getPreviewURL(), Toast.LENGTH_LONG).show();
 
         init();
     }
@@ -63,21 +62,12 @@ public class FullScreenActivity extends AppCompatActivity {
 
             }
         });
+        setHorizontalScroll(position);
     }
 
     private void setHorizontalScroll(int pos) {
         position = pos;
         recyclerView.smoothScrollToPosition(position);
-        int firstVisibleItemPosition = horizontalLayoutManager.findFirstVisibleItemPosition();
-        int lastVisibleItemPosition = horizontalLayoutManager.findLastVisibleItemPosition();
-
-        int centerPosition = (firstVisibleItemPosition + lastVisibleItemPosition) / 2;
-
-        if (position > centerPosition) {
-            recyclerView.smoothScrollToPosition(position + 1);
-        } else if (position < centerPosition) {
-            recyclerView.smoothScrollToPosition(position - 1);
-        }
     }
 
     public void itemSelected(int pos) {
