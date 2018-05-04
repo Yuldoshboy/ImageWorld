@@ -6,10 +6,10 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.widget.Toast;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import uz.yura_sultonov.imageworld.ImageWorldApp;
 import uz.yura_sultonov.imageworld.R;
 import uz.yura_sultonov.imageworld.adapters.HorizontalImageAdapter;
 import uz.yura_sultonov.imageworld.adapters.SlidingImageAdapter;
@@ -17,9 +17,11 @@ import uz.yura_sultonov.imageworld.adapters.SlidingImageAdapter;
 public class FullScreenActivity extends AppCompatActivity {
 
     @BindView(R.id.pager)
-    public ViewPager pager;
+    ViewPager pager;
     @BindView(R.id.indicator)
-    public RecyclerView recyclerView;
+    RecyclerView recyclerView;
+
+    public ImageWorldApp mApp;
 
     private int position;
     private HorizontalImageAdapter adapter;
@@ -35,18 +37,27 @@ public class FullScreenActivity extends AppCompatActivity {
         Intent intent = getIntent();
         position = intent.getIntExtra("position", 0);
 
+        mApp = (ImageWorldApp) getApplication();
+
         init();
     }
 
     private void init() {
-        horizontalLayoutManager = new LinearLayoutManager(FullScreenActivity.this, LinearLayoutManager.HORIZONTAL, false);
+        horizontalLayoutManager = new LinearLayoutManager(
+                this,
+                LinearLayoutManager.HORIZONTAL,
+                false
+        );
+
         recyclerView.setLayoutManager(horizontalLayoutManager);
-        adapter = new HorizontalImageAdapter(this, MainActivity.imagesData);
+
+        adapter = new HorizontalImageAdapter(this);
         recyclerView.setAdapter(adapter);
 
-        pager.setAdapter(new SlidingImageAdapter(this, MainActivity.imagesData));
+        pager.setAdapter(new SlidingImageAdapter(this));
+        pager.setOffscreenPageLimit(3);
         pager.setCurrentItem(position);
-        pager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+        pager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
 
@@ -62,6 +73,7 @@ public class FullScreenActivity extends AppCompatActivity {
 
             }
         });
+
         setHorizontalScroll(position);
     }
 

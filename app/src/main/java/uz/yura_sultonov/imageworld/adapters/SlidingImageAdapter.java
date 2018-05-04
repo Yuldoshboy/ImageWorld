@@ -1,6 +1,5 @@
 package uz.yura_sultonov.imageworld.adapters;
 
-import android.content.Context;
 import android.os.Parcelable;
 import android.support.v4.view.PagerAdapter;
 import android.view.LayoutInflater;
@@ -10,25 +9,17 @@ import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
 
-import java.util.List;
-
 import uz.yura_sultonov.imageworld.R;
 import uz.yura_sultonov.imageworld.activities.FullScreenActivity;
-import uz.yura_sultonov.imageworld.entities.ImageHits;
 
 public class SlidingImageAdapter extends PagerAdapter {
 
+    private LayoutInflater mInflatter;
+    private FullScreenActivity mAct;
 
-    private List<ImageHits> data;
-    private LayoutInflater inflater;
-    private Context context;
-    private FullScreenActivity activity;
-
-    public SlidingImageAdapter(FullScreenActivity page, List<ImageHits> imagesData) {
-        this.activity = page;
-        this.context = page.getApplicationContext();
-        this.data = imagesData;
-        inflater = LayoutInflater.from(context);
+    public SlidingImageAdapter(FullScreenActivity activity) {
+        this.mAct = activity;
+        mInflatter = LayoutInflater.from(mAct);
     }
 
     @Override
@@ -38,19 +29,17 @@ public class SlidingImageAdapter extends PagerAdapter {
 
     @Override
     public int getCount() {
-        return data.size();
+        return mAct.mApp.mAppModel.getImages().size();
     }
 
     @Override
     public Object instantiateItem(ViewGroup view, int position) {
-        View imageLayout = inflater.inflate(R.layout.sliding_image, view, false);
+        View imageLayout = mInflatter.inflate(R.layout.sliding_image, view, false);
 
-        assert imageLayout != null;
-        final ImageView imageView = (ImageView) imageLayout
-                .findViewById(R.id.image);
+        final ImageView imageView = imageLayout.findViewById(R.id.image);
 
-        String url = data.get(position).getLargeImageURL();
-        Glide.with(this.context).load(url).into(imageView);
+        String url = mAct.mApp.mAppModel.getImages().get(position).getLargeImageURL();
+        Glide.with(mAct).load(url).into(imageView);
 
         view.addView(imageLayout, 0);
 
@@ -70,6 +59,4 @@ public class SlidingImageAdapter extends PagerAdapter {
     public Parcelable saveState() {
         return null;
     }
-
-
 }
