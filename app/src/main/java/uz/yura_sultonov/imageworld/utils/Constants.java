@@ -8,4 +8,8 @@ public interface Constants {
 
     int PER_PAGE = 20;
 
+    int CODE_PERMISSION_READ_STORAGE = 1;
+
+    int CODE_PERMISSION_WRITE_STORAGE = 2;
+
 }
