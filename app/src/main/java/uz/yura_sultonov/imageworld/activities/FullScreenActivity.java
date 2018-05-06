@@ -3,29 +3,24 @@ package uz.yura_sultonov.imageworld.activities;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.FutureTarget;
 import com.bumptech.glide.request.target.SimpleTarget;
-import com.bumptech.glide.request.target.Target;
 import com.bumptech.glide.request.transition.Transition;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
-import java.util.concurrent.ExecutionException;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -52,9 +47,13 @@ public class FullScreenActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_full_screen);
         ButterKnife.bind(this);
 
+        mToolbar.getBackground().setAlpha(45);
+        bottomPager.getBackground().setAlpha(45);
         Intent intent = getIntent();
         position = intent.getIntExtra("position", 0);
         mApp = (ImageWorldApp) getApplication();
@@ -104,11 +103,11 @@ public class FullScreenActivity extends AppCompatActivity {
     }
 
     private void downloadCurrentImage() {
-        if (!Utilities.object().isPermissionGranted(this, Constants.CODE_PERMISSION_READ_STORAGE)){
+        if (!Utilities.object().isPermissionGranted(this, Constants.CODE_PERMISSION_READ_STORAGE)) {
             Utilities.object().requestPermission(this, Constants.CODE_PERMISSION_READ_STORAGE);
             return;
         }
-        if (!Utilities.object().isPermissionGranted(this, Constants.CODE_PERMISSION_WRITE_STORAGE)){
+        if (!Utilities.object().isPermissionGranted(this, Constants.CODE_PERMISSION_WRITE_STORAGE)) {
             Utilities.object().requestPermission(this, Constants.CODE_PERMISSION_WRITE_STORAGE);
             return;
         }
@@ -131,6 +130,7 @@ public class FullScreenActivity extends AppCompatActivity {
         pager.setAdapter(new SlidingImageAdapter(this));
         pager.setOffscreenPageLimit(3);
         pager.setCurrentItem(position);
+
         pager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -139,7 +139,23 @@ public class FullScreenActivity extends AppCompatActivity {
 
             @Override
             public void onPageSelected(int position) {
-                // askmfkmasfk
+                bottomPager.setCurrentItem(position);
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
+        bottomPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                pager.setCurrentItem(position);
             }
 
             @Override
@@ -151,7 +167,7 @@ public class FullScreenActivity extends AppCompatActivity {
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        switch (requestCode){
+        switch (requestCode) {
             case Constants.CODE_PERMISSION_READ_STORAGE:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
                     downloadCurrentImage();
@@ -167,4 +183,9 @@ public class FullScreenActivity extends AppCompatActivity {
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
+
+    public void imageListClicked(int position) {
+        pager.setCurrentItem(position);
+    }
+
 }

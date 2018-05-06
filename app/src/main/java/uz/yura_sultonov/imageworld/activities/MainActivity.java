@@ -2,6 +2,8 @@ package uz.yura_sultonov.imageworld.activities;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Configuration;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -119,6 +121,12 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        gv.setNumColumns(newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE ? R.integer.column_count_landscape : R.integer.column_count_portrait);
+        super.onConfigurationChanged(newConfig);
+    }
+
     private void showSortTypeDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
 
@@ -129,27 +137,25 @@ public class MainActivity extends AppCompatActivity {
         builder.setSingleChoiceItems(
                 allSortTypes,
                 Arrays.asList(allSortTypes).indexOf(mApp.mAppModel.getSortType().valueStr()),
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int item) {
-                        boolean is_item_selected = false;
+                (dialog, item) -> {
+                    boolean is_item_selected = false;
 
-                        switch (item) {
-                            case 0:
-                                is_item_selected = !mApp.mAppModel.getSortType().equals(SortTypes.SORT_LATEST);
-                                mApp.mAppModel.setSortType(SortTypes.SORT_LATEST);
-                                break;
-                            case 1:
-                                is_item_selected = !mApp.mAppModel.getSortType().equals(SortTypes.SORT_POPULAR);
-                                mApp.mAppModel.setSortType(SortTypes.SORT_POPULAR);
-                                break;
-                        }
-
-                        if (is_item_selected) {
-                            clearDataAndGetAgain();
-                        }
-
-                        sortTypeAlertDialog.dismiss();
+                    switch (item) {
+                        case 0:
+                            is_item_selected = !mApp.mAppModel.getSortType().equals(SortTypes.SORT_LATEST);
+                            mApp.mAppModel.setSortType(SortTypes.SORT_LATEST);
+                            break;
+                        case 1:
+                            is_item_selected = !mApp.mAppModel.getSortType().equals(SortTypes.SORT_POPULAR);
+                            mApp.mAppModel.setSortType(SortTypes.SORT_POPULAR);
+                            break;
                     }
+
+                    if (is_item_selected) {
+                        clearDataAndGetAgain();
+                    }
+
+                    sortTypeAlertDialog.dismiss();
                 });
 
         sortTypeAlertDialog = builder.create();

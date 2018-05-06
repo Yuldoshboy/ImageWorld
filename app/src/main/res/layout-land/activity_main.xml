@@ -23,7 +23,7 @@
         android:drawSelectorOnTop="true"
         android:gravity="center"
         android:horizontalSpacing="2dp"
-        android:numColumns="@integer/column_count_portrait"
+        android:numColumns="@integer/column_count_landscape"
         android:scrollbarStyle="insideOverlay"
         android:stretchMode="columnWidth"
         android:verticalSpacing="2dp"></GridView>

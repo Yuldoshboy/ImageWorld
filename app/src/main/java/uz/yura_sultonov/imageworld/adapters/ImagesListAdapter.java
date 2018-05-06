@@ -46,6 +46,13 @@ public class ImagesListAdapter extends PagerAdapter {
         String url = mAct.mApp.mAppModel.getImages().get(position).getLargeImageURL();
         Glide.with(mAct).load(url).into(imageView);
 
+        imageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAct.imageListClicked(position);
+            }
+        });
+
         view.addView(imageLayout, 0);
 
         return imageLayout;

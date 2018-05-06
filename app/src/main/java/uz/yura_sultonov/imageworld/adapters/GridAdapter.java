@@ -1,11 +1,16 @@
 package uz.yura_sultonov.imageworld.adapters;
 
+import android.content.res.TypedArray;
+import android.graphics.drawable.AnimationDrawable;
+import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 
+import uz.yura_sultonov.imageworld.R;
 import uz.yura_sultonov.imageworld.activities.MainActivity;
 import uz.yura_sultonov.imageworld.helpers.SquaredImageView;
 
@@ -29,7 +34,10 @@ public final class GridAdapter extends BaseAdapter {
 
         // Get the image URL for the current position.
         String url = getItem(position);
-        Glide.with(mAct).load(url).into(view);
+        Glide.with(mAct)
+                .load(url)
+                //.apply(new RequestOptions().placeholder(getProgressBarIndeterminate()))
+                .into(view);
 
         view.setOnClickListener(new View.OnClickListener() {
             @Override
