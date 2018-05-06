@@ -11,6 +11,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 
 import uz.yura_sultonov.imageworld.R;
 import uz.yura_sultonov.imageworld.activities.FullScreenActivity;
@@ -44,7 +45,9 @@ public class SlidingImageAdapter extends PagerAdapter {
         final TouchImageView imageView = imageLayout.findViewById(R.id.image);
 
         String url = mAct.mApp.mAppModel.getImages().get(position).getLargeImageURL();
-        Glide.with(mAct).load(url).into(imageView);
+        Glide.with(mAct).load(url)
+                .apply(new RequestOptions().error(R.drawable.error).placeholder(R.drawable.placeholder))
+                .into(imageView);
 
         view.addView(imageLayout, 0);
 

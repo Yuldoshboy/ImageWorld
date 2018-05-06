@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 
 import uz.yura_sultonov.imageworld.R;
 import uz.yura_sultonov.imageworld.activities.FullScreenActivity;
@@ -32,6 +33,7 @@ public final class GridAdapter extends RecyclerView.Adapter<GridAdapter.ImageIte
         String url = getItem(position);
         Glide.with(mAct.getApplicationContext())
                 .load(url)
+                .apply(new RequestOptions().error(R.drawable.error).placeholder(R.drawable.placeholder))
                 .into(holder.imageView);
         holder.imageView.setOnClickListener(new View.OnClickListener() {
             @Override
