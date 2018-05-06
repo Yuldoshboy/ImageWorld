@@ -15,6 +15,7 @@ public class AppViewModel extends AndroidViewModel {
     private ArrayList<ImageHits> images;
     private SortTypes sortType;
     private String searchKey;
+    private int currPosition;
 
     public AppViewModel(@NonNull Application application) {
         super(application);
@@ -22,6 +23,7 @@ public class AppViewModel extends AndroidViewModel {
         this.images = new ArrayList<>();
         this.searchKey = "";
         this.sortType = SortTypes.SORT_LATEST;
+        currPosition = -1;
     }
 
     public void addNextPartData(List<ImageHits> hits) {
@@ -50,5 +52,13 @@ public class AppViewModel extends AndroidViewModel {
 
     public void setSearchKey(String searchKey) {
         this.searchKey = searchKey;
+    }
+
+    public void setCurrPosition(int currPosition) {
+        this.currPosition = currPosition;
+    }
+
+    public int getCurrPosition() {
+        return currPosition;
     }
 }

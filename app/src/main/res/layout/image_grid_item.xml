@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<uz.yura_sultonov.imageworld.helpers.SquaredImageView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:scaleType="centerCrop"
+    android:layout_width="fill_parent"
+    android:padding="2dp"
+    android:layout_height="fill_parent"/>

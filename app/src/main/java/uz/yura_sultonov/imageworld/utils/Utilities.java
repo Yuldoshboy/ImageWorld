@@ -122,7 +122,7 @@ public class Utilities {
 
     public void saveImageToStorage(FullScreenActivity activity, Bitmap image) {
 
-        String imageFileName = "ImageWorld_" + activity.mApp.mAppModel.getImages().get(activity.position).getId() + ".jpg";
+        String imageFileName = "ImageWorld_" + activity.mApp.mAppModel.getImages().get(activity.mApp.mAppModel.getCurrPosition()).getId() + ".jpg";
         File storageDir = new File(
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
                         + "/ImageWorld");

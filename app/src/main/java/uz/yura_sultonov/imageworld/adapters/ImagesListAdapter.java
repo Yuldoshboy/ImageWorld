@@ -49,6 +49,7 @@ public class ImagesListAdapter extends PagerAdapter {
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                mAct.mApp.mAppModel.setCurrPosition(position);
                 mAct.imageListClicked(position);
             }
         });

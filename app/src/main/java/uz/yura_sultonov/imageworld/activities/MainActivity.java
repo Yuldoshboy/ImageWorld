@@ -1,17 +1,21 @@
 package uz.yura_sultonov.imageworld.activities;
 
-import android.content.DialogInterface;
+import android.app.SharedElementCallback;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.graphics.drawable.GradientDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.transition.Slide;
+import android.transition.TransitionInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.widget.GridView;
+import android.view.View;
 import android.widget.SearchView;
 import android.widget.Toast;
 
@@ -22,6 +26,7 @@ import com.androidnetworking.interfaces.ParsedRequestListener;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -38,8 +43,8 @@ import uz.yura_sultonov.imageworld.utils.Utilities;
 
 public class MainActivity extends AppCompatActivity {
 
-    @BindView(R.id.grid_view)
-    GridView gv;
+    @BindView(R.id.grid_recycle)
+    RecyclerView gridRecycle;
     @BindView(R.id.toolbar)
     Toolbar mToolbar;
 
@@ -50,27 +55,32 @@ public class MainActivity extends AppCompatActivity {
     private AlertDialog sortTypeAlertDialog;
 
     public ImageWorldApp mApp;
+    private GridLayoutManager layoutManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Slide slide = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+            slide = new Slide();
+            slide.setDuration(5000);
+            getWindow().setExitTransition(slide);
+        }
         ButterKnife.bind(this);
 
         // Setting actionbar
         setSupportActionBar(mToolbar);
-        getSupportActionBar().setTitle(R.string.app_name);
-        getSupportActionBar().setSubtitle(R.string.subtitle);
-        getSupportActionBar().setElevation(4.0F);
-        getSupportActionBar().setLogo(R.mipmap.ic_launcher_round);
         getSupportActionBar().setDisplayUseLogoEnabled(true);
 
         mApp = (ImageWorldApp) getApplication();
 
         adapter = new GridAdapter(this);
         scrollListener = new ScrollListener(this);
-        gv.setAdapter(adapter);
-        gv.setOnScrollListener(scrollListener);
+        layoutManager = new GridLayoutManager(this, getResources().getInteger(R.integer.column_count));
+        gridRecycle.setLayoutManager(layoutManager);
+        gridRecycle.setAdapter(adapter);
+        gridRecycle.addOnScrollListener(scrollListener);
 
         loadNextDataFromPixabay();
     }
@@ -88,9 +98,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 mApp.mAppModel.setSearchKey(query);
-
-                clearDataAndGetAgain();
-
+                currPage = 1;
+                loadNextDataFromPixabay();
                 return false;
             }
 
@@ -103,11 +112,6 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-    private void clearDataAndGetAgain() {
-        currPage = 1;
-        loadNextDataFromPixabay();
-    }
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -117,13 +121,11 @@ public class MainActivity extends AppCompatActivity {
                 showSortTypeDialog();
                 break;
         }
-
         return super.onOptionsItemSelected(item);
     }
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
-        gv.setNumColumns(newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE ? R.integer.column_count_landscape : R.integer.column_count_portrait);
         super.onConfigurationChanged(newConfig);
     }
 
@@ -139,7 +141,6 @@ public class MainActivity extends AppCompatActivity {
                 Arrays.asList(allSortTypes).indexOf(mApp.mAppModel.getSortType().valueStr()),
                 (dialog, item) -> {
                     boolean is_item_selected = false;
-
                     switch (item) {
                         case 0:
                             is_item_selected = !mApp.mAppModel.getSortType().equals(SortTypes.SORT_LATEST);
@@ -150,9 +151,9 @@ public class MainActivity extends AppCompatActivity {
                             mApp.mAppModel.setSortType(SortTypes.SORT_POPULAR);
                             break;
                     }
-
                     if (is_item_selected) {
-                        clearDataAndGetAgain();
+                        currPage = 1;
+                        loadNextDataFromPixabay();
                     }
 
                     sortTypeAlertDialog.dismiss();
@@ -161,6 +162,8 @@ public class MainActivity extends AppCompatActivity {
         sortTypeAlertDialog = builder.create();
         sortTypeAlertDialog.show();
     }
+
+
 
     private void loadNextDataFromPixabay() {
         if (Utilities.object().isNetAvailable(MainActivity.this)) {
@@ -200,19 +203,11 @@ public class MainActivity extends AppCompatActivity {
         scrollListener.continueListeningMoreData();
     }
 
-    public void itemClicked(int position) {
-        Intent intent = new Intent(this, FullScreenActivity.class);
-        intent.putExtra("position", position);
-        startActivity(intent);
-    }
-
     public void fetchMoreItems() {
         if ((currPage + 1) * Constants.PER_PAGE > totalHits) {
             Toast.makeText(this, "No more data", Toast.LENGTH_LONG).show();
         }
-
         loadNextDataFromPixabay();
-
         currPage++;
     }
 }

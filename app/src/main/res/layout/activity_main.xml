@@ -1,31 +1,31 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="#f0f0f0"
-    tools:context="uz.yura_sultonov.imageworld.activities.MainActivity">
+    tools:context="uz.yura_sultonov.imageworld.activities.MainActivity"
+    android:clickable="true"
+    android:focusable="true"
+    android:orientation="vertical">
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/colorPrimary"
+        android:layout_height="48dp"
+        android:background="@android:color/background_light"
+        app:titleTextColor="@android:color/background_dark"
+        app:subtitleTextAppearance="@style/TextAppearance.AppCompat.Small"
+        app:titleTextAppearance="@style/TextAppearance.AppCompat.Small"
+        app:title="@string/app_name"
+        app:subtitle="@string/app_subtitle"
+        app:logo="@mipmap/ic_launcher_round"
+        app:subtitleTextColor="@android:color/primary_text_light"
         app:theme="@style/ThemeOverlay.AppCompat.Dark" />
 
-    <GridView
-        android:id="@+id/grid_view"
-        android:layout_width="fill_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/toolbar"
-        android:layout_margin="5dp"
-        android:columnWidth="100dp"
-        android:drawSelectorOnTop="true"
-        android:gravity="center"
-        android:horizontalSpacing="2dp"
-        android:numColumns="@integer/column_count_portrait"
-        android:scrollbarStyle="insideOverlay"
-        android:stretchMode="columnWidth"
-        android:verticalSpacing="2dp"></GridView>
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/grid_recycle"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
 
-</RelativeLayout>
+</LinearLayout>

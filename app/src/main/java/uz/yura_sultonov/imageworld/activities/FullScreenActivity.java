@@ -3,18 +3,17 @@ package uz.yura_sultonov.imageworld.activities;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.GestureDetector;
+import android.transition.Fade;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
-import android.view.View;
 import android.view.WindowManager;
 import android.widget.Toast;
 
@@ -42,26 +41,25 @@ public class FullScreenActivity extends AppCompatActivity {
 
     public ImageWorldApp mApp;
 
-    public int position;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_full_screen);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            Fade fade = new Fade();
+            fade.setDuration(5000);
+            getWindow().setEnterTransition(fade);
+        }
         ButterKnife.bind(this);
 
         mToolbar.getBackground().setAlpha(45);
         bottomPager.getBackground().setAlpha(45);
-        Intent intent = getIntent();
-        position = intent.getIntExtra("position", 0);
         mApp = (ImageWorldApp) getApplication();
 
         // Setting actionbar
         setSupportActionBar(mToolbar);
-        getSupportActionBar().setTitle(R.string.app_name);
-        getSupportActionBar().setElevation(4.0F);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         init();
@@ -125,11 +123,11 @@ public class FullScreenActivity extends AppCompatActivity {
     private void init() {
         bottomPager.setAdapter(new ImagesListAdapter(this));
         bottomPager.setOffscreenPageLimit(5);
-        bottomPager.setCurrentItem(position);
+        bottomPager.setCurrentItem(mApp.mAppModel.getCurrPosition());
 
         pager.setAdapter(new SlidingImageAdapter(this));
         pager.setOffscreenPageLimit(3);
-        pager.setCurrentItem(position);
+        pager.setCurrentItem(mApp.mAppModel.getCurrPosition());
 
         pager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
@@ -139,23 +137,8 @@ public class FullScreenActivity extends AppCompatActivity {
 
             @Override
             public void onPageSelected(int position) {
+                mApp.mAppModel.setCurrPosition(position);
                 bottomPager.setCurrentItem(position);
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int state) {
-
-            }
-        });
-        bottomPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
-            }
-
-            @Override
-            public void onPageSelected(int position) {
-                pager.setCurrentItem(position);
             }
 
             @Override
