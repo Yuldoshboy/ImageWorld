@@ -17,4 +17,8 @@ public enum SortTypes {
     public static CharSequence[] ALL() {
         return new CharSequence[]{SORT_LATEST.sortType, SORT_POPULAR.sortType};
     }
+
+    public static CharSequence[] getTitles() {
+        return new CharSequence[]{"Популярные", "Популярные"};
+    }
 }

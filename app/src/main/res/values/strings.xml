@@ -1,4 +1,11 @@
 <resources>
     <string name="app_name">Image World</string>
     <string name="app_subtitle">Задача Яндекса</string>
+    <string name="you_must_allow">Вы должны разрешить это разрешение</string>
+    <string name="no_connection">Пожалуйста, проверьте соединение с интернетом</string>
+    <string name="choose_order">Выберите порядок элементов</string>
+    <string name="search_here">Напишите что искать</string>
+    <string name="file_downloaded">Ваш файл загружен</string>
+    <string name="open_file">Открыть</string>
+    <string name="share_file">Поделиться изображением</string>
 </resources>

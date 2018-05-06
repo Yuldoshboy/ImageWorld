@@ -1,6 +1,5 @@
 package uz.yura_sultonov.imageworld.activities;
 
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.Build;
@@ -17,9 +16,15 @@ import android.view.MenuItem;
 import android.view.WindowManager;
 import android.widget.Toast;
 
+import com.androidnetworking.AndroidNetworking;
+import com.androidnetworking.common.Priority;
+import com.androidnetworking.error.ANError;
+import com.androidnetworking.interfaces.ParsedRequestListener;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
+
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -27,7 +32,10 @@ import uz.yura_sultonov.imageworld.ImageWorldApp;
 import uz.yura_sultonov.imageworld.R;
 import uz.yura_sultonov.imageworld.adapters.ImagesListAdapter;
 import uz.yura_sultonov.imageworld.adapters.SlidingImageAdapter;
+import uz.yura_sultonov.imageworld.entities.ImageHits;
+import uz.yura_sultonov.imageworld.entities.ImageResponse;
 import uz.yura_sultonov.imageworld.utils.Constants;
+import uz.yura_sultonov.imageworld.utils.HLog;
 import uz.yura_sultonov.imageworld.utils.Utilities;
 
 public class FullScreenActivity extends AppCompatActivity {
@@ -40,6 +48,8 @@ public class FullScreenActivity extends AppCompatActivity {
     Toolbar mToolbar;
 
     public ImageWorldApp mApp;
+    private ImagesListAdapter imageListAdapter;
+    private SlidingImageAdapter slidingImageAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +71,7 @@ public class FullScreenActivity extends AppCompatActivity {
         // Setting actionbar
         setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle("");
 
         init();
     }
@@ -121,13 +132,15 @@ public class FullScreenActivity extends AppCompatActivity {
     }
 
     private void init() {
-        bottomPager.setAdapter(new ImagesListAdapter(this));
-        bottomPager.setOffscreenPageLimit(5);
-        bottomPager.setCurrentItem(mApp.mAppModel.getCurrPosition());
+        imageListAdapter = new ImagesListAdapter(this);
+        bottomPager.setAdapter(imageListAdapter);
+        bottomPager.setOffscreenPageLimit(2);
+        bottomPager.setCurrentItem(mApp.mAppModel.getCurrPosition(), true);
 
-        pager.setAdapter(new SlidingImageAdapter(this));
-        pager.setOffscreenPageLimit(3);
-        pager.setCurrentItem(mApp.mAppModel.getCurrPosition());
+        slidingImageAdapter = new SlidingImageAdapter(this);
+        pager.setAdapter(slidingImageAdapter);
+        pager.setOffscreenPageLimit(2);
+        pager.setCurrentItem(mApp.mAppModel.getCurrPosition(), true);
 
         pager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
@@ -138,7 +151,10 @@ public class FullScreenActivity extends AppCompatActivity {
             @Override
             public void onPageSelected(int position) {
                 mApp.mAppModel.setCurrPosition(position);
-                bottomPager.setCurrentItem(position);
+                bottomPager.setCurrentItem(position, true);
+                if (position > mApp.mAppModel.getTotalHits() - Constants.PER_PAGE / 4) {
+                    fetchMoreItems();
+                }
             }
 
             @Override
@@ -148,6 +164,50 @@ public class FullScreenActivity extends AppCompatActivity {
         });
     }
 
+    private void loadNextDataFromPixabay() {
+        if (Utilities.object().isNetAvailable(this)) {
+            AndroidNetworking.get(Constants.API_BASE_URL + "key={apiKey}&order={orderBy}&page={pageNumber}&per_page={perPage}&q={searchKey}")
+                    .addPathParameter("apiKey", Constants.API_KEY)
+                    .addPathParameter("orderBy", mApp.mAppModel.getSortType().valueStr())
+                    .addPathParameter("searchKey", mApp.mAppModel.getSearchKey())
+                    .addPathParameter("perPage", String.valueOf(Constants.PER_PAGE))
+                    .addPathParameter("pageNumber", String.valueOf(mApp.mAppModel.getCurrPage()))
+                    .setPriority(Priority.IMMEDIATE)
+                    .build()
+                    .getAsObject(ImageResponse.class, new ParsedRequestListener<ImageResponse>() {
+                        @Override
+                        public void onResponse(ImageResponse response) {
+                            if (mApp.mAppModel.getCurrPage() == 1) {
+                                mApp.mAppModel.clearAllData();
+                            }
+                            mApp.mAppModel.setTotalHits(Math.max(mApp.mAppModel.getTotalHits(), response.getTotalHits()));
+                            setDataToPagers(response.getHits());
+                        }
+
+                        @Override
+                        public void onError(ANError anError) {
+                            HLog.e("error", anError.getErrorDetail());
+                        }
+                    });
+        } else {
+            Toast.makeText(this, R.string.no_connection, Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private void setDataToPagers(List<ImageHits> hits) {
+        mApp.mAppModel.addNextPartData(hits);
+        slidingImageAdapter.notifyDataSetChanged();
+        imageListAdapter.notifyDataSetChanged();
+    }
+
+    public void fetchMoreItems() {
+        if ((mApp.mAppModel.getCurrPage() + 1) * Constants.PER_PAGE > mApp.mAppModel.getTotalHits()) {
+            return;
+        }
+        loadNextDataFromPixabay();
+        mApp.mAppModel.setNextPage();
+    }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
@@ -155,20 +215,20 @@ public class FullScreenActivity extends AppCompatActivity {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
                     downloadCurrentImage();
                 else
-                    Toast.makeText(this, "You must allow this permission", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, R.string.you_must_allow, Toast.LENGTH_LONG).show();
                 break;
             case Constants.CODE_PERMISSION_WRITE_STORAGE:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
                     downloadCurrentImage();
                 else
-                    Toast.makeText(this, "You must allow this permission", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, R.string.you_must_allow, Toast.LENGTH_LONG).show();
                 break;
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     public void imageListClicked(int position) {
-        pager.setCurrentItem(position);
+        pager.setCurrentItem(position, true);
     }
 
 }

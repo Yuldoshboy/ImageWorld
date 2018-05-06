@@ -1,6 +1,7 @@
 package uz.yura_sultonov.imageworld.utils;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
@@ -12,11 +13,13 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Environment;
+import android.os.IBinder;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -31,6 +34,7 @@ import java.security.cert.X509Certificate;
 import javax.security.auth.x500.X500Principal;
 
 import uz.yura_sultonov.imageworld.BuildConfig;
+import uz.yura_sultonov.imageworld.R;
 import uz.yura_sultonov.imageworld.activities.FullScreenActivity;
 
 public class Utilities {
@@ -136,13 +140,13 @@ public class Utilities {
                 OutputStream fOut = new FileOutputStream(imageFile);
                 image.compress(Bitmap.CompressFormat.JPEG, 100, fOut);
                 fOut.close();
-                Snackbar.make(activity.findViewById(android.R.id.content), "Your file is downloaded",
+                Snackbar.make(activity.findViewById(android.R.id.content), R.string.file_downloaded,
                         Snackbar.LENGTH_INDEFINITE)
-                        .setAction("Open", new View.OnClickListener() {
+                        .setAction(R.string.open_file, new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
                                 File file = new File(storageDir, imageFileName);
-                                Intent intent = new Intent(android.content.Intent.ACTION_VIEW);
+                                Intent intent = new Intent(Intent.ACTION_VIEW);
                                 intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                                 Uri uri = FileProvider.getUriForFile(activity,
                                         BuildConfig.APPLICATION_ID + ".provider",
@@ -162,12 +166,9 @@ public class Utilities {
     }
 
     public void shareImage(AppCompatActivity activity, Bitmap bitmap) {
-        File file = new File(activity.getExternalCacheDir(), "ImageWorldPhoto.png");
         try {
-            FileOutputStream fOut = new FileOutputStream(file);
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fOut);
-            fOut.flush();
-            fOut.close();
+            File file = new File(activity.getExternalCacheDir(), "ImageWorldPhoto.png");
+            writeToCache(file, bitmap);
             file = new File(activity.getExternalCacheDir(), "ImageWorldPhoto.png");
             Intent intent = new Intent(Intent.ACTION_SEND);
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
@@ -178,13 +179,30 @@ public class Utilities {
             intent.putExtra(Intent.EXTRA_STREAM, uri);
             PackageManager pm = activity.getPackageManager();
             if (intent.resolveActivity(pm) != null) {
-                activity.startActivity(Intent.createChooser(intent, "Share file"));
+                activity.startActivity(Intent.createChooser(intent, activity.getString(R.string.share_file)));
             }
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void hideKeyboard(AppCompatActivity act) {
+        try {
+            InputMethodManager inputMethodManager = (InputMethodManager) act.getSystemService(Activity.INPUT_METHOD_SERVICE);
+            IBinder windowToken = act.getCurrentFocus().getWindowToken();
+            if(windowToken != null) inputMethodManager.hideSoftInputFromWindow(windowToken, 0);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void writeToCache(File file, Bitmap bitmap) throws IOException {
+        FileOutputStream fOut = new FileOutputStream(file);
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fOut);
+        fOut.flush();
+        fOut.close();
     }
 }
 

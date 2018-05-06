@@ -17,6 +17,7 @@
         app:titleTextColor="@android:color/background_dark"
         app:subtitleTextAppearance="@style/TextAppearance.AppCompat.Small"
         app:titleTextAppearance="@style/TextAppearance.AppCompat.Small"
+        app:collapseIcon="@drawable/ic_menu_back"
         app:title="@string/app_name"
         app:subtitle="@string/app_subtitle"
         app:logo="@mipmap/ic_launcher_round"
