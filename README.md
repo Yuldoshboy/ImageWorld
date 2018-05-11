@@ -37,15 +37,15 @@ Demonstration gif (10.4 MB): [gif](/screenshots/demonstration.gif).
 
 ### Screenshots
 ![Main portrait mode](/screenshots/main_portrait.jpeg?raw=true "Main portrait mode")
-![Main landscape mode](/screenshots/main_landscape.jpeg?raw=true "Main landscape mode")
 ![Internet error](/screenshots/main_landscape.jpeg?raw=true "Internet error")
 ![Sort by](/screenshots/sort_type.jpeg?raw=true "Sort by")
 ![Search](/screenshots/search.jpeg?raw=true "Search")
 ![Full view portrait](/screenshots/search.jpeg?raw=true "Full view portrait")
-![Full view landscape](/screenshots/search.jpeg?raw=true "Full view landscape")
 ![Full view zooming](/screenshots/search.jpeg?raw=true "Full view zooming")
 ![Full view downloaded](/screenshots/search.jpeg?raw=true "Full view downloaded")
 ![Full view sharing](/screenshots/search.jpeg?raw=true "Full view sharing")
+![Main landscape mode](/screenshots/main_landscape.jpeg?raw=true "Main landscape mode")
+![Full view landscape](/screenshots/search.jpeg?raw=true "Full view landscape")
 
 
 ### Used libraries
