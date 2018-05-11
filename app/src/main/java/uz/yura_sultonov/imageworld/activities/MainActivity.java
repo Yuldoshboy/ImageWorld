@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -12,6 +13,8 @@ import android.transition.Slide;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.RelativeLayout;
 import android.widget.SearchView;
 import android.widget.Toast;
 
@@ -22,9 +25,11 @@ import com.androidnetworking.interfaces.ParsedRequestListener;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import uz.yura_sultonov.imageworld.ImageWorldApp;
 import uz.yura_sultonov.imageworld.R;
 import uz.yura_sultonov.imageworld.adapters.GridAdapter;
@@ -40,6 +45,12 @@ public class MainActivity extends AppCompatActivity {
 
     @BindView(R.id.grid_recycle)
     RecyclerView gridRecycle;
+    @BindView(R.id.reload_btn)
+    AppCompatButton reloadBtn;
+    @BindView(R.id.error_layout)
+    RelativeLayout errorLayout;
+    @BindView(R.id.main_layout)
+    RelativeLayout mainLayout;
     @BindView(R.id.toolbar)
     Toolbar mToolbar;
 
@@ -75,6 +86,13 @@ public class MainActivity extends AppCompatActivity {
         gridRecycle.setAdapter(adapter);
         gridRecycle.addOnScrollListener(scrollListener);
 
+        loadNextDataFromPixabay();
+    }
+
+    @OnClick(R.id.reload_btn)
+    public void reloadBtnClick(View v){
+        errorLayout.setVisibility(View.GONE);
+        mainLayout.setVisibility(View.VISIBLE);
         loadNextDataFromPixabay();
     }
 
@@ -177,12 +195,17 @@ public class MainActivity extends AppCompatActivity {
 
     private void loadNextDataFromPixabay() {
         if (Utilities.object().isNetAvailable(this)) {
-            AndroidNetworking.get(Constants.API_BASE_URL + "key={apiKey}&order={orderBy}&page={pageNumber}&per_page={perPage}&q={searchKey}")
+            String lang = "en";
+            if (Pattern.matches(".*\\p{InCyrillic}.*", mApp.mAppModel.getSearchKey())){
+                lang = "ru";
+            }
+            AndroidNetworking.get(Constants.API_BASE_URL + "key={apiKey}&order={orderBy}&page={pageNumber}&per_page={perPage}&q={searchKey}&lang={lang}")
                     .addPathParameter("apiKey", Constants.API_KEY)
                     .addPathParameter("orderBy", mApp.mAppModel.getSortType().valueStr())
                     .addPathParameter("searchKey", mApp.mAppModel.getSearchKey())
                     .addPathParameter("perPage", String.valueOf(Constants.PER_PAGE))
                     .addPathParameter("pageNumber", String.valueOf(mApp.mAppModel.getCurrPage()))
+                    .addPathParameter("lang", lang)
                     .setPriority(Priority.IMMEDIATE)
                     .build()
                     .getAsObject(ImageResponse.class, new ParsedRequestListener<ImageResponse>() {
@@ -197,12 +220,19 @@ public class MainActivity extends AppCompatActivity {
 
                         @Override
                         public void onError(ANError anError) {
+                            showError();
                             HLog.e("error", anError.getErrorDetail());
                         }
                     });
         } else {
-            Toast.makeText(this, R.string.no_connection, Toast.LENGTH_LONG).show();
+            showError();
         }
+    }
+
+    private void showError() {
+        Toast.makeText(this, R.string.no_connection, Toast.LENGTH_LONG).show();
+        mainLayout.setVisibility(View.GONE);
+        errorLayout.setVisibility(View.VISIBLE);
     }
 
     private void setDataToGridView(List<ImageHits> hits) {

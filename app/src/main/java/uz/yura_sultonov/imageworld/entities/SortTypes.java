@@ -19,6 +19,6 @@ public enum SortTypes {
     }
 
     public static CharSequence[] getTitles() {
-        return new CharSequence[]{"Популярные", "Популярные"};
+        return new CharSequence[]{"Последные", "Популярные"};
     }
 }
